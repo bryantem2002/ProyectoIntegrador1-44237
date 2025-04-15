@@ -12,3 +12,19 @@ Problema 2: Dificultad en la gestión y control de transacciones digitales
 Problema 3: Falta de integración entre herramientas de trabajo y métodos de cobro
 
 
+🎯 OBJETIVOS:
+- Desarrollar un sistema de billetera digital web con los registros de pago.
+- Permitir la exportación y consulta a los usuarios mediante un formulario.
+- En la transacción de pagos observar el monitoreo en tiempo real.
+- Generar reportes para que los usuarios tengan un control financiero.
+- Proteger a los usuarios mediante una autenticación de usuario y contraseña.
+
+
+📌 EQUIPO DE TRABAJO:
+- Cancha Gervacio Luis Alexander	 U21309708
+- Hilario Palacios Jean Carlos		 U20214583
+- Salazar Espinoza Bryan David	   U21318504   
+- Sulca Vasquez Harold Pablo		   U22229602 
+
+
+

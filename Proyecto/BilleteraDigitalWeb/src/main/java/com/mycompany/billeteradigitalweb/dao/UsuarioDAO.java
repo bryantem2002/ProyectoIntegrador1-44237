@@ -3,6 +3,7 @@ package com.mycompany.billeteradigitalweb.dao;
 import com.mycompany.billeteradigitalweb.DatabaseConfig.DatabaseConnection;
 import com.mycompany.billeteradigitalweb.model.Usuario;
 import com.mycompany.billeteradigitalweb.model.Cuenta;
+import java.math.BigDecimal;
 import java.sql.*;
 import java.util.Random;
 import org.mindrot.jbcrypt.BCrypt;
@@ -234,4 +235,90 @@ public class UsuarioDAO {
             }
         }
     }
+    
+    public Usuario obtenerUsuarioPorId(Integer idUsuario) throws SQLException {
+    String sqlUsuario = "SELECT * FROM Usuario WHERE id_usuario = ?";
+    try (Connection conn = DatabaseConnection.getInstance().getConnection();
+         PreparedStatement stmt = conn.prepareStatement(sqlUsuario)) {
+         
+        stmt.setInt(1, idUsuario);
+        
+        try (ResultSet rs = stmt.executeQuery()) {
+            if (rs.next()) {
+                Usuario usuario = new Usuario();
+                usuario.setIdUsuario(rs.getInt("id_usuario"));
+                usuario.setNombre(rs.getString("nombre"));
+                usuario.setApellido(rs.getString("apellido"));
+                usuario.setCorreo(rs.getString("correo"));
+                usuario.setContraseña(rs.getString("contraseña")); // hash almacenado
+                usuario.setDni(rs.getString("dni"));
+                usuario.setTelefono(rs.getString("telefono")); // asegúrate que este campo exista
+                usuario.setFechaNacimiento(rs.getDate("fecha_nacimiento"));
+                usuario.setFechaCreacion(rs.getDate("fecha_creacion"));
+                
+                // Opcional: cargar Cuenta asociada si aplica
+                String sqlCuenta = "SELECT * FROM Cuenta WHERE id_usuario = ?";
+                try (PreparedStatement stmtCuenta = conn.prepareStatement(sqlCuenta)) {
+                    stmtCuenta.setInt(1, idUsuario);
+                    try (ResultSet rsCuenta = stmtCuenta.executeQuery()) {
+                        if (rsCuenta.next()) {
+                            Cuenta cuenta = new Cuenta();
+                            cuenta.setIdCuenta(rsCuenta.getInt("id_cuenta"));
+                            cuenta.setNumeroCuenta(rsCuenta.getString("numero_cuenta"));
+                            cuenta.setSaldo(rsCuenta.getBigDecimal("saldo"));
+                            cuenta.setIdUsuario(rsCuenta.getInt("id_usuario"));
+                            cuenta.setIdEstado(rsCuenta.getInt("id_estado"));
+                            cuenta.setFechaCreacion(rsCuenta.getTimestamp("fecha_creacion"));
+                            usuario.setCuenta(cuenta);
+                        }
+                    }
+                }
+                
+                return usuario;
+            }
+        }
+    }
+    return null; // usuario no encontrado
 }
+    
+  
+    public void actualizarUsuario(Usuario usuario) throws SQLException {
+        String sql = "UPDATE usuario SET nombre = ?, apellido = ?, correo = ?, contraseña = ?, dni = ?, telefono = ?, fecha_nacimiento = ? WHERE id_usuario = ?";
+
+        try (Connection conn = DatabaseConnection.getInstance().getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setString(1, usuario.getNombre());
+            stmt.setString(2, usuario.getApellido());
+            stmt.setString(3, usuario.getCorreo());
+            stmt.setString(4, usuario.getContraseña());
+            stmt.setString(5, usuario.getDni());
+            stmt.setString(6, usuario.getTelefono());
+            stmt.setDate(7, usuario.getFechaNacimiento());
+            stmt.setInt(8, usuario.getIdUsuario());
+
+            stmt.executeUpdate();
+        }
+    }
+    
+    
+    
+    public BigDecimal getSaldoByUsuarioId(int idUsuario) throws SQLException {
+    String sql = "SELECT saldo FROM Cuenta WHERE id_usuario = ?";
+    try (Connection conn = DatabaseConnection.getInstance().getConnection();
+         PreparedStatement stmt = conn.prepareStatement(sql)) {
+        stmt.setInt(1, idUsuario);
+        try (ResultSet rs = stmt.executeQuery()) {
+            if (rs.next()) {
+                return rs.getBigDecimal("saldo");
+            }
+            throw new SQLException("Cuenta no encontrada para el usuario " + idUsuario);
+        }
+    }
+}
+    
+   
+    
+    
+}
+    

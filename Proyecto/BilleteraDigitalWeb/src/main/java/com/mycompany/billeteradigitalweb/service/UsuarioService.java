@@ -3,6 +3,7 @@ package com.mycompany.billeteradigitalweb.service;
 import com.mycompany.billeteradigitalweb.dao.UsuarioDAO;
 import com.mycompany.billeteradigitalweb.model.Cuenta;
 import com.mycompany.billeteradigitalweb.model.Usuario;
+import java.math.BigDecimal;
 import java.sql.SQLException;
 import org.mindrot.jbcrypt.BCrypt; 
 
@@ -60,4 +61,50 @@ public class UsuarioService {
         }
         return usuarioDAO.getUsuarioByNumeroCuenta(numeroCuenta);
     }
+    
+    
+    
+     public void actualizarUsuario(Usuario usuario) throws SQLException {
+        // Validaciones básicas (puedes ampliar según necesidades)
+
+        if (usuario.getDni() == null || !usuario.getDni().matches("\\d{8}")) {
+            throw new SQLException("El DNI debe tener 8 dígitos");
+        }
+
+        if (usuario.getCorreo() == null || usuario.getCorreo().trim().isEmpty()) {
+            throw new SQLException("El correo es obligatorio");
+        }
+
+        if (usuario.getContraseña() != null && !usuario.getContraseña().trim().isEmpty()) {
+            // Validar longitud de contraseña si se actualiza
+            if (usuario.getContraseña().length() != 6) {
+                throw new SQLException("La contraseña debe tener exactamente 6 caracteres");
+            }
+            // Hashear la contraseña nueva
+            String hashedPassword = BCrypt.hashpw(usuario.getContraseña(), BCrypt.gensalt());
+            usuario.setContraseña(hashedPassword);
+        } else {
+            // Si no se actualiza la contraseña, obtener la actual de la BD para no sobreescribir con null
+            Usuario usuarioExistente = usuarioDAO.getUsuarioById(usuario.getIdUsuario());
+            if (usuarioExistente != null) {
+                usuario.setContraseña(usuarioExistente.getContraseña());
+            } else {
+                throw new SQLException("Usuario no encontrado");
+            }
+        }
+
+        // Llamar al DAO para actualizar los datos
+        usuarioDAO.actualizarUsuario(usuario);
+    }
+     
+    public BigDecimal obtenerSaldo(int idUsuario) throws SQLException {
+    return usuarioDAO.getSaldoByUsuarioId(idUsuario);
 }
+}
+    
+   
+    
+    
+    
+    
+   

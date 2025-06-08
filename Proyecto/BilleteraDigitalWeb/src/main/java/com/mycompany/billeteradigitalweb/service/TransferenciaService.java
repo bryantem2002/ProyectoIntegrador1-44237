@@ -31,4 +31,20 @@ public class TransferenciaService {
     }
     return transferenciaDAO.obtenerHistorialTransferencias(numeroCuenta);
 }
+    
+    
+    public int[] obtenerTransferenciasPorMes() throws SQLException {
+        return transferenciaDAO.obtenerTransferenciasPorMes();
+    } 
+
+   
+    public BigDecimal[] obtenerIngresosPorMes(int idUsuario) throws SQLException {
+        return transferenciaDAO.obtenerIngresosPorMes(idUsuario);
+    }
+
+    public BigDecimal[] obtenerGastosPorMes(int idUsuario) throws SQLException {
+        return transferenciaDAO.obtenerGastosPorMes(idUsuario);
+    }
+     
+    
 }

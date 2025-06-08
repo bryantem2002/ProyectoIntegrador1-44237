@@ -11,6 +11,9 @@ import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import java.math.BigDecimal;
+import java.sql.Date;
+import java.sql.SQLException;
 
 @Path("/usuarios")
 @Produces(MediaType.APPLICATION_JSON)
@@ -60,26 +63,37 @@ public class UsuarioResource {
         }
     }
 
-    @POST
-    @Path("/login")
-    public Response loginUser(@QueryParam("correo") String correo,
-            @QueryParam("contraseña") String contraseña,
-            @Context HttpServletRequest request) {
-        try {
-            Usuario usuario = usuarioService.loginUser(correo, contraseña);
+@POST
+@Path("/login")
+public Response loginUser(@QueryParam("correo") String correo,
+        @QueryParam("contraseña") String contraseña,
+        @Context HttpServletRequest request) {
+    try {
+        Usuario usuario = usuarioService.loginUser(correo, contraseña);
 
-            // Guardar usuario en sesión (con todos sus datos)
+        if (usuario != null) {
+            // Guardar usuario en sesión
             HttpSession session = request.getSession();
             session.setAttribute("usuario", usuario);
 
-            // Devolver solo mensaje de éxito
+            // Guardar número de cuenta en sesión
+            if (usuario.getCuenta() != null) {
+                session.setAttribute("numeroCuenta", usuario.getCuenta().getNumeroCuenta());
+            }
+
+            // Devolver mensaje de éxito
             return Response.ok("{\"message\": \"Sesión iniciada correctamente\"}").build();
-        } catch (Exception e) {
+        } else {
             return Response.status(Response.Status.UNAUTHORIZED)
-                    .entity("{\"error\": \"" + e.getMessage() + "\"}")
+                    .entity("{\"error\": \"Correo o contraseña incorrectos\"}")
                     .build();
         }
+    } catch (Exception e) {
+        return Response.status(Response.Status.UNAUTHORIZED)
+                .entity("{\"error\": \"" + e.getMessage() + "\"}")
+                .build();
     }
+}
 
     @GET
     @Path("/cuenta")
@@ -173,4 +187,97 @@ public class UsuarioResource {
                     .build();
         }
     }
+    
+    @POST
+@Path("/actualizar")
+@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+public Response actualizarUsuario(
+        @FormParam("idUsuario") int idUsuario,
+        @FormParam("nombre") String nombre,
+        @FormParam("apellido") String apellido,
+        @FormParam("dni") String dni,
+        @FormParam("telefono") String telefono,
+        @FormParam("fechaNacimiento") String fechaNacimientoStr,
+        @FormParam("correo") String correo,
+        @FormParam("password") String password,
+        @Context HttpServletRequest request) {
+
+    HttpSession session = request.getSession(false);
+    if (session == null || session.getAttribute("usuario") == null) {
+        return Response.status(Response.Status.UNAUTHORIZED)
+                .entity("{\"error\": \"No autorizado\"}")
+                .build();
+    }
+
+    try {
+        Usuario usuario = new Usuario();
+
+        usuario.setIdUsuario(idUsuario);
+        usuario.setNombre(nombre);
+        usuario.setApellido(apellido);
+        usuario.setDni(dni);
+        usuario.setTelefono(telefono);
+        usuario.setCorreo(correo);
+
+        // Convertir String a java.sql.Date (formato yyyy-MM-dd)
+        if (fechaNacimientoStr != null && !fechaNacimientoStr.isEmpty()) {
+            Date fechaNacimiento = Date.valueOf(fechaNacimientoStr);
+            usuario.setFechaNacimiento(fechaNacimiento);
+        }
+
+        if (password != null && !password.trim().isEmpty()) {
+            usuario.setContraseña(password);
+        }
+
+        usuarioService.actualizarUsuario(usuario);
+
+        // Actualizar sesión con datos nuevos
+        session.setAttribute("usuario", usuario);
+
+        return Response.ok("{\"mensaje\": \"Usuario actualizado correctamente\"}").build();
+
+    } catch (IllegalArgumentException e) {
+        return Response.status(Response.Status.BAD_REQUEST)
+                .entity("{\"error\": \"Formato de fecha inválido\"}")
+                .build();
+    } catch (Exception e) {
+        return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                .entity("{\"error\": \"Error al actualizar usuario: " + e.getMessage() + "\"}")
+                .build();
+    }
 }
+
+
+@GET
+@Path("/{id}/saldo")
+@Produces(MediaType.APPLICATION_JSON)
+public SaldoResponse getSaldo(@PathParam("id") int idUsuario) throws SQLException {
+    BigDecimal saldo = usuarioService.obtenerSaldo(idUsuario);
+    return new SaldoResponse(saldo, "PEN"); // Moneda base: Soles
+}
+
+public static class SaldoResponse {
+    public BigDecimal saldo;
+    public String moneda;
+    public SaldoResponse(BigDecimal saldo, String moneda) {
+        this.saldo = saldo;
+        this.moneda = moneda;
+    }
+}
+
+}
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    

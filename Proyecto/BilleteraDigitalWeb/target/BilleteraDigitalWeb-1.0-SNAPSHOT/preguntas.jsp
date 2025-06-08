@@ -97,12 +97,12 @@
 </div>
 
   <!-- Novedades -->
-  <a href="index.jsp" class="flex items-center text-[#4B34C3] font-semibold px-3 py-2 hover:text-[#2BB15D] transition">
+  <a href="novedades.jsp" class="flex items-center text-[#4B34C3] font-semibold px-3 py-2 hover:text-[#2BB15D] transition">
     <i class="fi fi-rs-newspaper-open w-4 h-4 mr-1"></i>Novedades
   </a>
 
   <!-- Contacto -->
-  <a href="index.jsp" class="flex items-center text-[#2BB15D] font-semibold px-3 py-2 hover:text-[#4B34C3] transition">
+  <a href="contacto.jsp" class="flex items-center text-[#2BB15D] font-semibold px-3 py-2 hover:text-[#4B34C3] transition">
     <i class="fas fa-phone-alt w-4 h-4 mr-1"></i>Contacto
   </a>
 </nav>
@@ -178,7 +178,7 @@
 
         <!-- Noticias -->
         <li>
-          <a href="index.jsp"
+          <a href="novedades.jsp"
             class="flex items-center px-3 py-2 rounded-md text-[#4B34C3] hover:bg-[#eee] font-semibold">
             <i class="fi fi-rs-newspaper-open w-5 h-5 mr-2"></i>Novedades
           </a>
@@ -186,7 +186,7 @@
         
         <!-- contactanos -->
        <li>
-  <a href="index.jsp"
+  <a href="contacto.jsp"
     class="flex items-center px-3 py-2 rounded-md text-[#2BB15D] hover:bg-[#eee] font-semibold">
     <i class="fas fa-phone-alt w-5 h-5 mr-2"></i>Contacto
   </a>
@@ -344,9 +344,9 @@
       <h3 class="text-lg font-semibold mb-4 text-[#2BB15D]">Navegación</h3>
       <ul class="space-y-2 text-[#B0B3C2] text-sm">
         <li><a href="terminos.html" class="hover:text-white"><i class="fa fa-angle-right mr-2"></i>Términos y condiciones</a></li>
-        <li><a href="privacidad.html" class="hover:text-white"><i class="fa fa-angle-right mr-2"></i>Política de privacidad</a></li>
-        <li><a href="soporte.html" class="hover:text-white"><i class="fa fa-angle-right mr-2"></i>Centro de soporte</a></li>
-        <li><a href="faq.html" class="hover:text-white"><i class="fa fa-angle-right mr-2"></i>Preguntas frecuentes</a></li>
+        <li><a href="politicaprivacidad.html" class="hover:text-white"><i class="fa fa-angle-right mr-2"></i>Política de privacidad</a></li>
+        <li><a href="ayuda.jsp" class="hover:text-white"><i class="fa fa-angle-right mr-2"></i>Centro de soporte</a></li>
+        <li><a href="preguntas.jsp" class="hover:text-white"><i class="fa fa-angle-right mr-2"></i>Preguntas frecuentes</a></li>
       </ul>
     </div>
 

@@ -10,6 +10,7 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import java.math.BigDecimal;
 import java.sql.SQLException;
+import java.util.*;
 
 @Path("/recargas")
 @Produces(MediaType.APPLICATION_JSON)
@@ -22,8 +23,7 @@ public class RecargaResource {
             @QueryParam("monto") BigDecimal monto,
             @QueryParam("metodo") int idMetodo,
             @Context HttpServletRequest request) {
-        
-        // Verificar sesión y obtener usuario
+
         HttpSession session = request.getSession(false);
         if (session == null || session.getAttribute("usuario") == null) {
             return Response.status(Response.Status.UNAUTHORIZED)
@@ -31,7 +31,6 @@ public class RecargaResource {
                     .build();
         }
 
-        // Obtener ID de cuenta desde la sesión
         Usuario usuario = (Usuario) session.getAttribute("usuario");
         if (usuario == null || usuario.getCuenta() == null) {
             return Response.status(Response.Status.BAD_REQUEST)
@@ -50,4 +49,52 @@ public class RecargaResource {
                     .build();
         }
     }
+
+    // Endpoint para gráfico: Recargas por Mes
+    @GET
+    @Path("/por-mes")
+    public Response recargasPorMes() {
+        try {
+            int[] cantidades = recargaService.obtenerRecargasPorMes();
+            String[] meses = {"Ene","Feb","Mar","Abr","May","Jun","Jul","Ago","Sep","Oct","Nov","Dic"};
+            Map<String, Object> result = new HashMap<>();
+            result.put("meses", meses);
+            result.put("cantidades", cantidades);
+            return Response.ok(result).build();
+        } catch (Exception e) {
+            return Response.serverError().entity("{\"error\": \"" + e.getMessage() + "\"}").build();
+        }
+    }
+
+    @GET
+@Path("/por-tipo")
+public Response recargasPorTipo() {
+    try {
+        Map<String, Integer> datos = recargaService.obtenerRecargasPorTipo();
+
+        if (datos == null || datos.isEmpty()) {
+            Map<String, String> error = new HashMap<>();
+            error.put("error", "No hay datos disponibles para mostrar");
+            return Response.status(Response.Status.NO_CONTENT).entity(error).build();
+        }
+
+        List<String> tipos = new ArrayList<>(datos.keySet());
+        List<Integer> cantidades = new ArrayList<>();
+
+        for (String tipo : tipos) {
+            cantidades.add(datos.get(tipo));
+        }
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("tipos", tipos);
+        result.put("cantidades", cantidades);
+
+        return Response.ok(result).build();
+
+    } catch (Exception e) {
+        Map<String, String> error = new HashMap<>();
+        error.put("error", e.getMessage());
+        return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(error).build();
+    }
+}
 }

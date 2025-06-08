@@ -4,6 +4,9 @@ import com.mycompany.billeteradigitalweb.DatabaseConfig.DatabaseConnection;
 import com.mycompany.billeteradigitalweb.model.Recarga;
 import java.sql.*;
 import java.math.BigDecimal;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 public class RecargaDAO {
     
@@ -84,4 +87,44 @@ public class RecargaDAO {
             }
         }
     }
+    
+    // Recargas por mes
+public int[] obtenerRecargasPorMes() throws SQLException {
+    int[] recargasPorMes = new int[12]; // 12 meses
+    String sql = "SELECT MONTH(fecha) AS mes, COUNT(*) AS cantidad FROM Recarga GROUP BY mes";
+    try (Connection conn = DatabaseConnection.getInstance().getConnection();
+         PreparedStatement stmt = conn.prepareStatement(sql);
+         ResultSet rs = stmt.executeQuery()) {
+        while (rs.next()) {
+            int mes = rs.getInt("mes");
+            int cantidad = rs.getInt("cantidad");
+            recargasPorMes[mes - 1] = cantidad; // mes 1 = enero
+        }
+    }
+    return recargasPorMes;
+}
+
+// Recargas por tipo (Izipay, Yape, etc.)
+public Map<String, Integer> obtenerRecargasPorTipo() throws SQLException {
+    Map<String, Integer> recargasPorTipo = new LinkedHashMap<>(); // Mantener orden
+
+    String sql = "SELECT mp.metodo, COUNT(r.id_recarga) AS cantidad " +
+                 "FROM Recarga r " +
+                 "JOIN metodo_pago mp ON r.id_metodo = mp.id_metodo " +
+                 "GROUP BY mp.metodo " +
+                 "ORDER BY mp.metodo";
+
+    try (Connection conn = DatabaseConnection.getInstance().getConnection();
+         PreparedStatement stmt = conn.prepareStatement(sql);
+         ResultSet rs = stmt.executeQuery()) {
+
+        while (rs.next()) {
+            String metodo = rs.getString("metodo"); // nombre del método (Izipay, Yape)
+            int cantidad = rs.getInt("cantidad");
+            recargasPorTipo.put(metodo, cantidad);
+        }
+    }
+    return recargasPorTipo;
+}
+       
 }

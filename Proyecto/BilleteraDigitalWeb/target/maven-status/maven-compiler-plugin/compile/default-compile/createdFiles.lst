@@ -4,6 +4,7 @@ com\mycompany\billeteradigitalweb\service\RecargaService.class
 com\mycompany\billeteradigitalweb\service\TransferenciaService.class
 com\mycompany\billeteradigitalweb\dao\RecargaDAO.class
 com\mycompany\billeteradigitalweb\model\Transferencia.class
+com\mycompany\billeteradigitalweb\rest\UsuarioResource$SaldoResponse.class
 com\mycompany\billeteradigitalweb\dao\TransferenciaDAO.class
 com\mycompany\billeteradigitalweb\resources\JakartaEE10Resource.class
 com\mycompany\billeteradigitalweb\rest\UsuarioResource.class

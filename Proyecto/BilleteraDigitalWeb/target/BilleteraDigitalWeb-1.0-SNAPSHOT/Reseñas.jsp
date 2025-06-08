@@ -99,7 +99,7 @@
 </div>
 
   <!-- Novedades -->
-  <a href="index.jsp" class="flex items-center text-[#4B34C3] font-semibold px-3 py-2 hover:text-[#2BB15D] transition">
+  <a href="novedades.jsp" class="flex items-center text-[#4B34C3] font-semibold px-3 py-2 hover:text-[#2BB15D] transition">
     <i class="fi fi-rs-newspaper-open w-4 h-4 mr-1"></i>Novedades
   </a>
 
@@ -181,7 +181,7 @@
 
         <!-- Noticias -->
         <li>
-          <a href="index.jsp"
+          <a href="novedades.jsp"
             class="flex items-center px-3 py-2 rounded-md text-[#4B34C3] hover:bg-[#eee] font-semibold">
             <i class="fi fi-rs-newspaper-open w-5 h-5 mr-2"></i>Novedades
           </a>
@@ -268,15 +268,19 @@
             <h3 class="text-lg font-bold">Luis, emprendedor de moda</h3>
           </div>
         </div>
+        
+        
+        <div class="swiper-slide relative w-full h-full bg-green-700 rounded-xl overflow-hidden flex items-center justify-center">
+  <video class="max-h-full max-w-full object-contain" controls>
+    <source src="videos/anuncio3.mp4" type="video/mp4" />
+    Tu navegador no soporta videos.
+  </video>
+  <div class="absolute bottom-0 left-0 w-full bg-gradient-to-t from-black/90 via-black/50 to-transparent p-4 text-white pointer-events-none">
+    <p class="text-sm font-semibold">#VIBRACONFACIPAGO</p>
+    <h3 class="text-lg font-bold">Harold, emprendedor de ropa</h3>
+  </div>
+</div>
 
-        <!-- Slide 3 (imagen temporal) -->
-        <div class="swiper-slide relative w-full h-full">
-          <img src="img/anuncio3.png" alt="Imagen temporal" class="w-full h-full object-cover" />
-          <div class="absolute bottom-0 left-0 w-full bg-gradient-to-t from-black/90 via-black/50 to-transparent p-4 text-white pointer-events-none">
-            <p class="text-sm font-semibold">#VIBRACONFACIPAGO</p>
-            <h3 class="text-lg font-bold">Impulsa tu negocio hoy</h3>
-          </div>
-        </div>
 
       </div>
 
@@ -329,9 +333,9 @@
       <h3 class="text-lg font-semibold mb-4 text-[#2BB15D]">Navegación</h3>
       <ul class="space-y-2 text-[#B0B3C2] text-sm">
         <li><a href="terminos.html" class="hover:text-white"><i class="fa fa-angle-right mr-2"></i>Términos y condiciones</a></li>
-        <li><a href="privacidad.html" class="hover:text-white"><i class="fa fa-angle-right mr-2"></i>Política de privacidad</a></li>
-        <li><a href="soporte.html" class="hover:text-white"><i class="fa fa-angle-right mr-2"></i>Centro de soporte</a></li>
-        <li><a href="faq.html" class="hover:text-white"><i class="fa fa-angle-right mr-2"></i>Preguntas frecuentes</a></li>
+        <li><a href="politicaprivacidad.html" class="hover:text-white"><i class="fa fa-angle-right mr-2"></i>Política de privacidad</a></li>
+        <li><a href="ayuda.jsp" class="hover:text-white"><i class="fa fa-angle-right mr-2"></i>Centro de soporte</a></li>
+        <li><a href="preguntas.jsp" class="hover:text-white"><i class="fa fa-angle-right mr-2"></i>Preguntas frecuentes</a></li>
       </ul>
     </div>
 
@@ -400,30 +404,37 @@
     s0.parentNode.insertBefore(s1,s0);
     })();
     </script>
-    
-<script>
-  document.addEventListener("DOMContentLoaded", function () {
-    const swiper = new Swiper(".mySwiper", {
-      slidesPerView: 1,
-      spaceBetween: 30,
-      pagination: {
-        el: ".swiper-pagination",
-        clickable: true
+    <script>   
+document.addEventListener("DOMContentLoaded", function () {
+  const swiper = new Swiper(".mySwiper", {
+    slidesPerView: 1,
+    spaceBetween: 20, // Reduce un poco el espacio para móviles
+    pagination: {
+      el: ".swiper-pagination",
+      clickable: true
+    },
+    navigation: {
+      nextEl: ".swiper-button-next",
+      prevEl: ".swiper-button-prev"
+    },
+    breakpoints: {
+      640: {        // Más suave el cambio para tablets pequeñas
+        slidesPerView: 1,
+        spaceBetween: 20
       },
-      navigation: {
-        nextEl: ".swiper-button-next",
-        prevEl: ".swiper-button-prev"
+      768: {
+        slidesPerView: 2,
+        spaceBetween: 25
       },
-      breakpoints: {
-        768: {
-          slidesPerView: 2
-        },
-        1024: {
-          slidesPerView: 3
-        }
+      1024: {
+        slidesPerView: 3,
+        spaceBetween: 30
       }
-    });
+    },
+    // Opcional: loop para que puedas deslizar infinitamente
+    loop: true
   });
+});
 </script>
     
     

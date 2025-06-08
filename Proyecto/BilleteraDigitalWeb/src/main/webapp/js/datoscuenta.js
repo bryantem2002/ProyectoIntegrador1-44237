@@ -359,93 +359,151 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Cargar datos del usuario y la cuenta
-    async function loadUserData() {
-        console.log('Cargando datos del usuario...');
-        try {
-            const userResponse = await fetch('/BilleteraDigitalWeb/api/usuarios/datos', {
-                method: 'GET',
-                headers: { 'Accept': 'application/json' }
-            });
-            if (!userResponse.ok) {
-                throw new Error(userResponse.status === 401 ? 'No has iniciado sesión' : `Error al cargar datos del usuario: ${userResponse.status} ${userResponse.statusText}`);
-            }
-            const userData = await userResponse.json();
-            console.log('Datos del usuario recibidos:', userData);
+ // Cargar datos del usuario y la cuenta
+async function loadUserData() {
+    console.log('Cargando datos del usuario...');
+    try {
+        const userResponse = await fetch('/BilleteraDigitalWeb/api/usuarios/datos', {
+            method: 'GET',
+            headers: { 'Accept': 'application/json' }
+        });
+        if (!userResponse.ok) {
+            throw new Error(userResponse.status === 401 ? 'No has iniciado sesión' : `Error al cargar datos del usuario: ${userResponse.status} ${userResponse.statusText}`);
+        }
+        const userData = await userResponse.json();
+        console.log('Datos del usuario recibidos:', userData);
 
-            const accountResponse = await fetch('/BilleteraDigitalWeb/api/usuarios/cuenta', {
-                method: 'GET',
-                headers: { 'Accept': 'application/json' }
-            });
-            if (!accountResponse.ok) {
-                throw new Error(accountResponse.status === 401 ? 'No has iniciado sesión' : `Error al cargar datos de la cuenta: ${accountResponse.status} ${userResponse.statusText}`);
-            }
-            const accountData = await accountResponse.json();
-            console.log('Datos de la cuenta recibidos:', accountData);
+        const accountResponse = await fetch('/BilleteraDigitalWeb/api/usuarios/cuenta', {
+            method: 'GET',
+            headers: { 'Accept': 'application/json' }
+        });
+        if (!accountResponse.ok) {
+            throw new Error(accountResponse.status === 401 ? 'No has iniciado sesión' : `Error al cargar datos de la cuenta: ${accountResponse.status} ${userResponse.statusText}`);
+        }
+        const accountData = await accountResponse.json();
+        console.log('Datos de la cuenta recibidos:', accountData);
 
-            if (!userData.nombre || !userData.apellido || !userData.correo) {
-                throw new Error('Datos del usuario incompletos: falta nombre, apellido o correo');
-            }
-            if (!accountData.saldo && accountData.saldo !== 0 || !accountData.numeroCuenta) {
-                throw new Error('Datos de la cuenta incompletos: falta saldo o número de cuenta');
-            }
-            if (!userData.idCliente) {
-                console.warn('idCliente no encontrado en datos del usuario. Las recargas no funcionarán.');
-            }
+        if (!userData.nombre || !userData.apellido || !userData.correo) {
+            throw new Error('Datos del usuario incompletos: falta nombre, apellido o correo');
+        }
+        if (!accountData.saldo && accountData.saldo !== 0 || !accountData.numeroCuenta) {
+            throw new Error('Datos de la cuenta incompletos: falta saldo o número de cuenta');
+        }
+        if (!userData.idCliente) {
+            console.warn('idCliente no encontrado en datos del usuario. Las recargas no funcionarán.');
+        }
 
-            userAccountData = {
-                idCliente: userData.idCliente || null,
-                numeroCuenta: accountData.numeroCuenta,
-                saldo: accountData.saldo,
-                nombre: userData.nombre + ' ' + userData.apellido,
-                correo: userData.correo
-            };
-            window.userAccountData = userAccountData;
-            console.log('userAccountData establecido:', userAccountData);
+        userAccountData = {
+            idCliente: userData.idCliente || null,
+            numeroCuenta: accountData.numeroCuenta,
+            saldo: accountData.saldo,
+            nombre: userData.nombre + ' ' + userData.apellido,
+            correo: userData.correo
+        };
+        window.userAccountData = userAccountData;
+        console.log('userAccountData establecido:', userAccountData);
 
-            if (nombreUsuario) {
-                nombreUsuario.textContent = userAccountData.nombre;
-                console.log('Nombre actualizado en UI:', nombreUsuario.textContent);
-            }
-            if (correoUsuario) {
-                correoUsuario.textContent = userAccountData.correo;
-                console.log('Correo actualizado en UI:', correoUsuario.textContent);
-            }
-            if (bienvenida) {
-                bienvenida.textContent = 'Bienvenido, ' + userData.nombre + '!';
-                console.log('Bienvenida actualizada en UI:', bienvenida.textContent);
-            }
-            if (saldo) {
-                const saldoValue = parseFloat(accountData.saldo);
-                const saldoFormatted = isNaN(saldoValue) ? '0.00' : saldoValue.toFixed(2);
-                saldo.dataset.saldo = 'S/' + saldoFormatted;
-                saldo.textContent = '••••••';
-                console.log('Saldo almacenado en UI:', saldo.dataset.saldo);
-            }
-            if (accountNumberDisplay) {
-                const masked = maskAccountNumber(accountData.numeroCuenta);
-                accountNumberDisplay.dataset.numeroCuenta = accountData.numeroCuenta;
-                accountNumberDisplay.textContent = 'Cuenta: ' + masked;
-                console.log('Número de cuenta almacenado en UI:', accountNumberDisplay.dataset.numeroCuenta);
-            }
-            if (errorSaldo) {
-                errorSaldo.textContent = '';
-                errorSaldo.style.display = 'none';
-            }
+        if (nombreUsuario) {
+            nombreUsuario.textContent = userAccountData.nombre;
+            console.log('Nombre actualizado en UI:', nombreUsuario.textContent);
+        }
+        if (correoUsuario) {
+            correoUsuario.textContent = userAccountData.correo;
+            console.log('Correo actualizado en UI:', correoUsuario.textContent);
+        }
+        if (bienvenida) {
+            bienvenida.textContent = 'Bienvenido, ' + userData.nombre + '!';
+            console.log('Bienvenida actualizada en UI:', bienvenida.textContent);
+        }
+        if (saldo) {
+            const saldoValue = parseFloat(accountData.saldo);
+            const saldoFormatted = isNaN(saldoValue) ? '0.00' : saldoValue.toFixed(2);
+            saldo.dataset.saldo = 'S/' + saldoFormatted;
+            saldo.textContent = '••••••';
+            console.log('Saldo almacenado en UI:', saldo.dataset.saldo);
+        }
+        if (accountNumberDisplay) {
+            const masked = maskAccountNumber(accountData.numeroCuenta);
+            accountNumberDisplay.dataset.numeroCuenta = accountData.numeroCuenta;
+            accountNumberDisplay.textContent = 'Cuenta: ' + masked;
+            console.log('Número de cuenta almacenado en UI:', accountNumberDisplay.dataset.numeroCuenta);
+        }
+        if (errorSaldo) {
+            errorSaldo.textContent = '';
+            errorSaldo.style.display = 'none';
+        }
 
-            await loadTransferHistory();
-        } catch (error) {
-            console.error('Error en loadUserData:', error);
-            if (error.message === 'No has iniciado sesión') {
-                console.log('Redirigiendo a login.jsp debido a falta de sesión');
-                window.location.href = 'login.jsp';
-            } else if (errorSaldo) {
-                errorSaldo.textContent = error.message || 'Error al cargar los datos';
-                errorSaldo.style.display = 'block';
-            }
+        await loadTransferHistory();
+    } catch (error) {
+        console.error('Error en loadUserData:', error);
+        if (error.message === 'No has iniciado sesión') {
+            console.log('Redirigiendo a login.jsp debido a falta de sesión');
+            window.location.href = 'login.jsp';
+        } else if (errorSaldo) {
+            errorSaldo.textContent = error.message || 'Error al cargar los datos';
+            errorSaldo.style.display = 'block';
         }
     }
+}
 
+// Función para enmascarar el número de cuenta
+function maskAccountNumber(accountNumber) {
+    if (!accountNumber || accountNumber.length < 4) return '****';
+    return '**** **** **** ' + accountNumber.slice(-4);
+}
+
+// Función para mostrar el modal con el código QR
+function showQRModal() {
+    const qrModal = document.getElementById('qrModal');
+    const qrImage = document.getElementById('qrImage');
+    const qrAccountNumber = document.getElementById('qrAccountNumber');
+    const qrErrorAlert = document.getElementById('qrErrorAlert');
+
+    if (!window.userAccountData || !window.userAccountData.numeroCuenta) {
+        qrErrorAlert.textContent = 'Error: No se encontró el número de cuenta';
+        qrErrorAlert.classList.remove('hidden');
+        qrImage.classList.add('hidden');
+        qrAccountNumber.textContent = '';
+        qrModal.classList.add('active');
+        return;
+    }
+
+    const accountNumber = window.userAccountData.numeroCuenta;
+    const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(accountNumber)}`;
+
+    qrImage.src = qrUrl;
+    qrImage.classList.remove('hidden');
+    qrAccountNumber.textContent = `Cuenta: ${accountNumber}`;
+    qrErrorAlert.classList.add('hidden');
+    qrModal.classList.add('active');
+}
+
+// Función para cerrar el modal de QR
+function closeQRModal() {
+    const qrModal = document.getElementById('qrModal');
+    qrModal.classList.remove('active');
+}
+
+// Inicializar eventos al cargar el DOM
+document.addEventListener('DOMContentLoaded', function () {
+    loadUserData();
+
+    // Evento para el botón "Mostrar mi QR"
+    const showQRButton = document.getElementById('showQRButton');
+    if (showQRButton) {
+        showQRButton.addEventListener('click', showQRModal);
+    }
+
+    // Eventos para los botones de cerrar el modal de QR
+    const qrCloseButton = document.getElementById('qrCloseButton');
+    const qrCloseButtonTop = document.getElementById('qrCloseButtonTop');
+    if (qrCloseButton) {
+        qrCloseButton.addEventListener('click', closeQRModal);
+    }
+    if (qrCloseButtonTop) {
+        qrCloseButtonTop.addEventListener('click', closeQRModal);
+    }
+});
     // Manejar logout
     if (logoutButton) {
         logoutButton.addEventListener('click', async () => {

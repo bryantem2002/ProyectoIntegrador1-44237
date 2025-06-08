@@ -1,5 +1,5 @@
 const API_URL = 'https://api.consultasperu.com/api/v1/query';
-const API_TOKEN = 'ef5b82ce6b01070fa7d80ca415db0909d4628dd0e08445a56a548e7c85e0732e';
+const API_TOKEN = '502aa732c49c292289e80a80ca067c1a137af549a5f3a4d3831f01c8547d9f62';
 
 export async function consultarDNI(dniNumber) {
     try {

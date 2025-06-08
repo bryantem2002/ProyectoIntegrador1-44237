@@ -5,13 +5,14 @@ import com.mycompany.billeteradigitalweb.model.Transferencia;
 import java.sql.*;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 public class TransferenciaDAO {
     
-    public void realizarTransferencia(Transferencia transferencia) throws SQLException {
+   public void realizarTransferencia(Transferencia transferencia) throws SQLException {
         Connection conn = null;
         try {
             conn = DatabaseConnection.getInstance().getConnection();
@@ -131,5 +132,86 @@ public class TransferenciaDAO {
             }
         }
         return historial;
+    }
+    
+    public int[] obtenerTransferenciasPorMes() throws SQLException {
+        int[] transferenciasPorMes = new int[12]; // Para meses Enero (0) a Diciembre (11)
+        String sql = "SELECT MONTH(fecha) AS mes, COUNT(*) AS cantidad " +
+                     "FROM Transferencia " +
+                     "WHERE YEAR(fecha) = YEAR(CURDATE()) " +
+                     "GROUP BY MONTH(fecha) " +
+                     "ORDER BY MONTH(fecha)";
+        
+        try (Connection conn = DatabaseConnection.getInstance().getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql);
+             ResultSet rs = stmt.executeQuery()) {
+            
+            while (rs.next()) {
+                int mes = rs.getInt("mes");
+                int cantidad = rs.getInt("cantidad");
+                transferenciasPorMes[mes - 1] = cantidad; // Ajuste índice (mes 1 = enero)
+            }
+        }
+        return transferenciasPorMes;
+    }
+
+    public BigDecimal[] obtenerIngresosPorMes(int idUsuario) throws SQLException {
+    BigDecimal[] ingresosPorMes = new BigDecimal[12];
+    Arrays.fill(ingresosPorMes, BigDecimal.ZERO);
+
+    String sql = 
+        "SELECT MONTH(t.fecha) AS mes, SUM(t.monto) AS total " +
+        "FROM Transferencia t " +
+        "INNER JOIN Cuenta c ON t.cuenta_destino = c.numero_cuenta " +
+        "WHERE c.id_usuario = ? AND c.id_estado = 1 " +
+        "GROUP BY MONTH(t.fecha) " +
+        "ORDER BY mes";
+
+    try (Connection conn = DatabaseConnection.getInstance().getConnection();
+         PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+        stmt.setInt(1, idUsuario);
+
+        try (ResultSet rs = stmt.executeQuery()) {
+            while (rs.next()) {
+                int mes = rs.getInt("mes"); 
+                BigDecimal total = rs.getBigDecimal("total");
+                ingresosPorMes[mes - 1] = total != null ? total : BigDecimal.ZERO;
+            }
+        }
+    }
+
+    return ingresosPorMes;
+}
+
+    public BigDecimal[] obtenerGastosPorMes(int idUsuario) throws SQLException {
+        BigDecimal[] gastosPorMes = new BigDecimal[12];
+        Arrays.fill(gastosPorMes, BigDecimal.ZERO);
+
+        String sql = 
+            "SELECT MONTH(t.fecha) AS mes, SUM(t.monto) AS total " +
+            "FROM Transferencia t " +
+            "INNER JOIN Cuenta c ON t.cuenta_origen = c.numero_cuenta " +
+            "WHERE c.id_usuario = ? AND c.id_estado = 1 " +
+            "AND YEAR(t.fecha) = YEAR(CURDATE()) " +
+            "GROUP BY MONTH(t.fecha)";
+
+        try (Connection conn = DatabaseConnection.getInstance().getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setInt(1, idUsuario);
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    int mes = rs.getInt("mes");
+                    BigDecimal total = rs.getBigDecimal("total");
+                    if (mes >= 1 && mes <= 12) {
+                        gastosPorMes[mes - 1] = total != null ? total : BigDecimal.ZERO;
+                    }
+                }
+            }
+        }
+
+        return gastosPorMes;
     }
 }

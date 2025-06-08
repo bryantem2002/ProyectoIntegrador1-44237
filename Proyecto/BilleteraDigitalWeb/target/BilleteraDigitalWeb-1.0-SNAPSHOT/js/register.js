@@ -75,7 +75,7 @@ function showEmailForm() {
       <div class="text-center mt-6">
         <p class="text-sm text-gray-500">
           Al continuar, aceptas nuestros 
-          <a href="#" class="text-[#513dc4] hover:text-[#2bb15d] hover:underline font-medium">Términos y condiciones</a>
+          <a href="terminos.html" class="text-[#513dc4] hover:text-[#2bb15d] hover:underline font-medium">Términos y condiciones</a>
         </p>
       </div>
     </div>
@@ -181,7 +181,7 @@ function showDNIForm() {
       <div class="text-center mt-6">
         <p class="text-sm text-gray-500">
           Al continuar, aceptas nuestros 
-          <a href="#" class="text-[#513dc4] hover:text-[#2bb15d] hover:underline font-medium">Términos y condiciones</a>
+          <a href="terminos.html" class="text-[#513dc4] hover:text-[#2bb15d] hover:underline font-medium">Términos y condiciones</a>
         </p>
       </div>
     </div>

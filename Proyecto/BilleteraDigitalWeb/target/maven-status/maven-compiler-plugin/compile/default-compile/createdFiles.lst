@@ -17,5 +17,6 @@ com\mycompany\billeteradigitalweb\dao\HistorialDAO.class
 com\mycompany\billeteradigitalweb\rest\RecargaResource.class
 com\mycompany\billeteradigitalweb\service\HistorialService.class
 com\mycompany\billeteradigitalweb\model\Usuario.class
+com\mycompany\billeteradigitalweb\config\CorsFilter.class
 com\mycompany\billeteradigitalweb\config\ApplicationConfig.class
 com\mycompany\billeteradigitalweb\DatabaseConfig\DatabaseConnection.class

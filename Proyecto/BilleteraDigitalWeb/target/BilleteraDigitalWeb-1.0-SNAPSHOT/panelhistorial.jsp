@@ -554,8 +554,8 @@
     </main>
 
     <!-- Scripts -->
-    <script src="<%= request.getContextPath() %>/js/datoscuenta.js"></script>
-    
+    <script src="<%= request.getContextPath() %>/js/datoscuentas.js"></script>
+    <script src="<%= request.getContextPath() %>/js/sidebar.js"></script>
   
 
 

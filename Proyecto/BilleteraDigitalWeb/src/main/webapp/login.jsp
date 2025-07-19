@@ -39,9 +39,11 @@
   %>
   <div class="container px-4 sm:px-6 lg:px-8">
     <div class="card max-w-md mx-auto bg-white shadow-2xl rounded-3xl overflow-hidden transition-all duration-500" id="card-content">
-      <!-- Contenido dinámico cargado por JavaScript -->
+      <div class="flex justify-center items-center h-64">
+        <span class="loading loading-spinner text-[#2bb15d]"></span>
+      </div>
     </div>
   </div>
-  <script src="js/login.js" type="module"></script>
+  <script src="js/loginn.js"></script>
 </body>
 </html>

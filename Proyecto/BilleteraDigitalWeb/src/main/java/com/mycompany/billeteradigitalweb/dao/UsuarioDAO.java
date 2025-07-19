@@ -283,7 +283,7 @@ public class UsuarioDAO {
     
   
     public void actualizarUsuario(Usuario usuario) throws SQLException {
-        String sql = "UPDATE usuario SET nombre = ?, apellido = ?, correo = ?, contraseña = ?, dni = ?, telefono = ?, fecha_nacimiento = ? WHERE id_usuario = ?";
+        String sql = "UPDATE Usuario SET nombre = ?, apellido = ?, correo = ?, contraseña = ?, dni = ?, telefono = ?, fecha_nacimiento = ? WHERE id_usuario = ?";
 
         try (Connection conn = DatabaseConnection.getInstance().getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {

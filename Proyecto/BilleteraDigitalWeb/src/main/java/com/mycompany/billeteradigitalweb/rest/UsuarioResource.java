@@ -63,42 +63,36 @@ public class UsuarioResource {
         }
     }
 
-@POST
-@Path("/login")
-public Response loginUser(@QueryParam("correo") String correo,
-        @QueryParam("contraseña") String contraseña,
-        @Context HttpServletRequest request) {
-    try {
-        Usuario usuario = usuarioService.loginUser(correo, contraseña);
+    @POST
+    @Path("/login")
+    public Response loginUser(@QueryParam("correo") String correo,
+            @QueryParam("contraseña") String contraseña,
+            @Context HttpServletRequest request) {
+        try {
+            Usuario usuario = usuarioService.loginUser(correo, contraseña);
 
-        if (usuario != null) {
-            // Guardar usuario en sesión
-            HttpSession session = request.getSession();
-            session.setAttribute("usuario", usuario);
-
-            // Guardar número de cuenta en sesión
-            if (usuario.getCuenta() != null) {
-                session.setAttribute("numeroCuenta", usuario.getCuenta().getNumeroCuenta());
+            if (usuario != null) {
+                HttpSession session = request.getSession(true);
+                session.setAttribute("usuario", usuario);
+                if (usuario.getCuenta() != null) {
+                    session.setAttribute("numeroCuenta", usuario.getCuenta().getNumeroCuenta());
+                }
+                return Response.ok("{\"message\": \"Sesión iniciada correctamente\"}").build();
+            } else {
+                return Response.status(Response.Status.UNAUTHORIZED)
+                        .entity("{\"error\": \"Correo o contraseña incorrectos\"}")
+                        .build();
             }
-
-            // Devolver mensaje de éxito
-            return Response.ok("{\"message\": \"Sesión iniciada correctamente\"}").build();
-        } else {
-            return Response.status(Response.Status.UNAUTHORIZED)
-                    .entity("{\"error\": \"Correo o contraseña incorrectos\"}")
+        } catch (Exception e) {
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .entity("{\"error\": \"Error al iniciar sesión: " + e.getMessage() + "\"}")
                     .build();
         }
-    } catch (Exception e) {
-        return Response.status(Response.Status.UNAUTHORIZED)
-                .entity("{\"error\": \"" + e.getMessage() + "\"}")
-                .build();
     }
-}
 
     @GET
     @Path("/cuenta")
     public Response getCuentaUsuario(@Context HttpServletRequest request) {
-        // Verificar sesión
         HttpSession session = request.getSession(false);
         if (session == null || session.getAttribute("usuario") == null) {
             return Response.status(Response.Status.UNAUTHORIZED)
@@ -106,7 +100,6 @@ public Response loginUser(@QueryParam("correo") String correo,
                     .build();
         }
 
-        // Obtener usuario de la sesión
         Usuario usuario = (Usuario) session.getAttribute("usuario");
 
         try {
@@ -132,7 +125,6 @@ public Response loginUser(@QueryParam("correo") String correo,
     @GET
     @Path("/datos")
     public Response getDatosUsuario(@Context HttpServletRequest request) {
-        // Verificar sesión
         HttpSession session = request.getSession(false);
         if (session == null || session.getAttribute("usuario") == null) {
             return Response.status(Response.Status.UNAUTHORIZED)
@@ -140,16 +132,11 @@ public Response loginUser(@QueryParam("correo") String correo,
                     .build();
         }
 
-        // Obtener usuario de la sesión
         Usuario usuarioSesion = (Usuario) session.getAttribute("usuario");
 
         try {
-            // Obtener datos actualizados de la base de datos
             Usuario usuario = usuarioService.getUsuarioById(usuarioSesion.getIdUsuario());
-
-            // No devolver la contraseña
             usuario.setContraseña(null);
-
             return Response.ok(usuario).build();
         } catch (Exception e) {
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
@@ -162,7 +149,6 @@ public Response loginUser(@QueryParam("correo") String correo,
     @Path("/cuenta/{numeroCuenta}")
     public Response getInfoCuenta(@PathParam("numeroCuenta") String numeroCuenta,
             @Context HttpServletRequest request) {
-        // Verificar sesión
         HttpSession session = request.getSession(false);
         if (session == null || session.getAttribute("usuario") == null) {
             return Response.status(Response.Status.UNAUTHORIZED)
@@ -172,14 +158,11 @@ public Response loginUser(@QueryParam("correo") String correo,
 
         try {
             Usuario usuario = usuarioService.getUsuarioByNumeroCuenta(numeroCuenta);
-
-            // Crear un objeto con solo los datos necesarios
             JsonObjectBuilder builder = Json.createObjectBuilder();
             builder.add("numero_cuenta", usuario.getCuenta().getNumeroCuenta());
             builder.add("nombre", usuario.getNombre());
             builder.add("apellido", usuario.getApellido());
             builder.add("correo", usuario.getCorreo());
-
             return Response.ok(builder.build()).build();
         } catch (Exception e) {
             return Response.status(Response.Status.NOT_FOUND)
@@ -189,95 +172,83 @@ public Response loginUser(@QueryParam("correo") String correo,
     }
     
     @POST
-@Path("/actualizar")
-@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
-public Response actualizarUsuario(
-        @FormParam("idUsuario") int idUsuario,
-        @FormParam("nombre") String nombre,
-        @FormParam("apellido") String apellido,
-        @FormParam("dni") String dni,
-        @FormParam("telefono") String telefono,
-        @FormParam("fechaNacimiento") String fechaNacimientoStr,
-        @FormParam("correo") String correo,
-        @FormParam("password") String password,
-        @Context HttpServletRequest request) {
+    @Path("/actualizar")
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    public Response actualizarUsuario(
+            @FormParam("idUsuario") int idUsuario,
+            @FormParam("nombre") String nombre,
+            @FormParam("apellido") String apellido,
+            @FormParam("dni") String dni,
+            @FormParam("telefono") String telefono,
+            @FormParam("fechaNacimiento") String fechaNacimientoStr,
+            @FormParam("correo") String correo,
+            @FormParam("password") String password,
+            @Context HttpServletRequest request) {
 
-    HttpSession session = request.getSession(false);
-    if (session == null || session.getAttribute("usuario") == null) {
-        return Response.status(Response.Status.UNAUTHORIZED)
-                .entity("{\"error\": \"No autorizado\"}")
-                .build();
-    }
-
-    try {
-        Usuario usuario = new Usuario();
-
-        usuario.setIdUsuario(idUsuario);
-        usuario.setNombre(nombre);
-        usuario.setApellido(apellido);
-        usuario.setDni(dni);
-        usuario.setTelefono(telefono);
-        usuario.setCorreo(correo);
-
-        // Convertir String a java.sql.Date (formato yyyy-MM-dd)
-        if (fechaNacimientoStr != null && !fechaNacimientoStr.isEmpty()) {
-            Date fechaNacimiento = Date.valueOf(fechaNacimientoStr);
-            usuario.setFechaNacimiento(fechaNacimiento);
+        HttpSession session = request.getSession(false);
+        if (session == null || session.getAttribute("usuario") == null) {
+            return Response.status(Response.Status.UNAUTHORIZED)
+                    .entity("{\"error\": \"No autorizado\"}")
+                    .build();
         }
 
-        if (password != null && !password.trim().isEmpty()) {
-            usuario.setContraseña(password);
+        try {
+            Usuario usuario = new Usuario();
+            usuario.setIdUsuario(idUsuario);
+            usuario.setNombre(nombre);
+            usuario.setApellido(apellido);
+            usuario.setDni(dni);
+            usuario.setTelefono(telefono);
+            usuario.setCorreo(correo);
+
+            if (fechaNacimientoStr != null && !fechaNacimientoStr.isEmpty()) {
+                Date fechaNacimiento = Date.valueOf(fechaNacimientoStr);
+                usuario.setFechaNacimiento(fechaNacimiento);
+            }
+
+            if (password != null && !password.trim().isEmpty()) {
+                usuario.setContraseña(password);
+            }
+
+            usuarioService.actualizarUsuario(usuario);
+            session.setAttribute("usuario", usuario);
+
+            return Response.ok("{\"mensaje\": \"Usuario actualizado correctamente\"}").build();
+        } catch (IllegalArgumentException e) {
+            return Response.status(Response.Status.BAD_REQUEST)
+                    .entity("{\"error\": \"Formato de fecha inválido\"}")
+                    .build();
+        } catch (Exception e) {
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .entity("{\"error\": \"Error al actualizar usuario: " + e.getMessage() + "\"}")
+                    .build();
+        }
+    }
+
+    @GET
+    @Path("/{id}/saldo")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getSaldo(@PathParam("id") int idUsuario) {
+        try {
+            BigDecimal saldo = usuarioService.obtenerSaldo(idUsuario);
+            return Response.ok(new SaldoResponse(saldo, "PEN")).build();
+        } catch (SQLException e) {
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .entity("{\"error\": \"Error retrieving balance: " + e.getMessage() + "\"}")
+                    .build();
+        }
+    }
+
+    public static class SaldoResponse {
+        private BigDecimal saldo;
+        private String moneda;
+
+        public SaldoResponse(BigDecimal saldo, String moneda) {
+            this.saldo = saldo;
+            this.moneda = moneda;
         }
 
-        usuarioService.actualizarUsuario(usuario);
-
-        // Actualizar sesión con datos nuevos
-        session.setAttribute("usuario", usuario);
-
-        return Response.ok("{\"mensaje\": \"Usuario actualizado correctamente\"}").build();
-
-    } catch (IllegalArgumentException e) {
-        return Response.status(Response.Status.BAD_REQUEST)
-                .entity("{\"error\": \"Formato de fecha inválido\"}")
-                .build();
-    } catch (Exception e) {
-        return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                .entity("{\"error\": \"Error al actualizar usuario: " + e.getMessage() + "\"}")
-                .build();
+        public BigDecimal getSaldo() { return saldo; }
+        public String getMoneda() { return moneda; }
     }
 }
-
-
-@GET
-@Path("/{id}/saldo")
-@Produces(MediaType.APPLICATION_JSON)
-public SaldoResponse getSaldo(@PathParam("id") int idUsuario) throws SQLException {
-    BigDecimal saldo = usuarioService.obtenerSaldo(idUsuario);
-    return new SaldoResponse(saldo, "PEN"); // Moneda base: Soles
-}
-
-public static class SaldoResponse {
-    public BigDecimal saldo;
-    public String moneda;
-    public SaldoResponse(BigDecimal saldo, String moneda) {
-        this.saldo = saldo;
-        this.moneda = moneda;
-    }
-}
-
-}
-    
-    
-
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    

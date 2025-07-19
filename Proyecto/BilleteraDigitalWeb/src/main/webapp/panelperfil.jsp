@@ -276,7 +276,7 @@
 
             
             
-<form id="formActualizar" action="/BilleteraDigitalWeb/api/usuarios/actualizar" method="post" class="bg-white rounded-2xl shadow-xl p-8 relative">
+<form id="formActualizar" action="/api/usuarios/actualizar" method="post" class="bg-white rounded-2xl shadow-xl p-8 relative">
   <input type="hidden" name="idUsuario" value="<%= usuario.getIdUsuario() %>">
 
   
@@ -720,7 +720,7 @@
     </main>
 
     <!-- Scripts -->
-    <script src="<%= request.getContextPath() %>/js/datoscuenta.js"></script>
+    <script src="<%= request.getContextPath() %>/js/datoscuentas.js"></script>
     
  <script>
   document.getElementById('formActualizar').addEventListener('submit', function(event) {
@@ -781,7 +781,7 @@
   });
 </script>
 
-
+<script src="<%= request.getContextPath() %>/js/sidebar.js"></script>
 
     
   

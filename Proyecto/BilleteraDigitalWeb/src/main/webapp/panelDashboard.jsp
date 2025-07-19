@@ -12,7 +12,6 @@
     <title>Dashboard de Usuario</title>
     <link rel="stylesheet" href="<%= request.getContextPath() %>/styles.css">
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     
@@ -103,12 +102,23 @@
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
         }
+
+        /* Ensure eye icon is visible */
+        .toggle-icon {
+            cursor: pointer;
+            font-size: 1.25rem;
+            color: #6b7280;
+        }
+
+        .toggle-icon:hover {
+            color: #2BB15D;
+        }
     </style>
 </head>
 <body class="bg-gray-50 overflow-x-hidden">
     <%
         // Verificar si hay una sesión activa
-Usuario usuario = (Usuario) session.getAttribute("usuario");
+        Usuario usuario = (Usuario) session.getAttribute("usuario");
         if (usuario == null) {
             System.out.println("No hay sesión activa, redirigiendo a login.jsp");
             response.sendRedirect(request.getContextPath() + "/login.jsp");
@@ -117,7 +127,7 @@ Usuario usuario = (Usuario) session.getAttribute("usuario");
             System.out.println("Sesión activa para usuario: " + usuario.getCorreo());
         }
         // Obtener ID de usuario desde la sesión
-        int idUsuario = usuario.getIdUsuario();// Asegúrate de que getId() existe en tu clase Usuario
+        int idUsuario = usuario.getIdUsuario();
     %>
     <!-- Overlay para móvil -->
     <div id="overlay" class="fixed inset-0 bg-black opacity-0 -z-10 transition-opacity duration-300 md:hidden"></div>
@@ -163,7 +173,6 @@ Usuario usuario = (Usuario) session.getAttribute("usuario");
 
             <nav class="flex-grow px-4">
                 <div class="space-y-2">
-                    
                     <a href="panelUsuario.jsp" class="flex items-center px-6 py-4 rounded-xl transition-all duration-300 hover:bg-white hover:bg-opacity-10 text-white">
                         <div class="w-10 h-10 rounded-lg bg-white bg-opacity-10 flex items-center justify-center">
                             <i class="fas fa-home text-lg"></i>
@@ -201,7 +210,7 @@ Usuario usuario = (Usuario) session.getAttribute("usuario");
                                 Seguridad
                             </a>
                             <a href="panelperfil.jsp" class="block px-4 py-2 rounded-xl transition-all duration-300 hover:bg-white hover:bg-opacity-10 text-white">
-                                perfil
+                                Perfil
                             </a>
                         </div>
                     </div>
@@ -236,57 +245,55 @@ Usuario usuario = (Usuario) session.getAttribute("usuario");
         </div>
                    
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-  <!-- Tarjeta: Saldo y número de cuenta -->
-  <div class="bg-white shadow rounded-2xl p-6">
-    <h3 class="text-lg font-semibold text-gray-600 mb-2">Saldo y número de cuenta</h3>
-    <div class="flex items-center space-x-2 mb-3">
-      <span id="saldo" class="text-3xl font-bold text-gray-800">••••••</span>
-      <button onclick="toggleSaldo()" class="text-gray-500 hover:text-[#2BB15D] transition">
-        <i id="iconoOjo" class="fas fa-eye text-xl"></i>
-      </button>
-    </div>
-    <div class="flex items-center space-x-2">
-      <span id="accountNumberDisplay" class="text-xl font-mono text-gray-800">••••••</span>
-      <button onclick="toggleCuenta()" class="text-gray-500 hover:text-[#2BB15D] transition">
-        <i id="iconoOjoCuenta" class="fas fa-eye text-xl"></i>
-      </button>
-    </div>
-    <p id="errorSaldo" class="text-sm text-red-500 mt-2"></p>
-  </div>
+            <!-- Tarjeta: Saldo y número de cuenta -->
+            <div class="bg-white shadow rounded-2xl p-6">
+                <h3 class="text-lg font-semibold text-gray-600 mb-2">Saldo y número de cuenta</h3>
+                <div class="flex items-center space-x-2 mb-3">
+                    <span id="saldo" class="text-3xl font-bold text-gray-800">••••••</span>
+                    <button onclick="toggleSaldo()" class="toggle-icon">
+                        <i id="iconoOjo" class="fas fa-eye text-xl"></i>
+                    </button>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <span id="accountNumberDisplay" class="text-xl font-mono text-gray-800">••••••</span>
+                    <button onclick="toggleCuenta()" class="toggle-icon">
+                        <i id="iconoOjoCuenta" class="fas fa-eye text-xl"></i>
+                    </button>
+                </div>
+                <p id="errorSaldo" class="text-sm text-red-500 mt-2"></p>
+            </div>
   
-<!-- HTML para mostrar los saldos -->
-<div class="bg-white shadow rounded-2xl p-6">
-  <h3 class="text-lg font-semibold text-gray-600 mb-2">Saldo en otras monedas</h3>
-  <div class="mb-2">
-    <span class="font-medium text-gray-500">Euros (€): </span>
-    <span id="saldoEuro" class="text-xl font-bold text-gray-800">Cargando...</span>
-  </div>
-  <div>
-    <span class="font-medium text-gray-500">Dólares ($): </span>
-    <span id="saldoDolar" class="text-xl font-bold text-gray-800">••••••</span>
-  </div>
-  <p id="errorConversion" class="text-sm text-red-500 mt-2"></p>
-</div>
+            <!-- Tarjeta: Saldo en otras monedas -->
+            <div class="bg-white shadow rounded-2xl p-6">
+                <h3 class="text-lg font-semibold text-gray-600 mb-2">Saldo en otras monedas</h3>
+                <div class="mb-2">
+                    <span class="font-medium text-gray-500">Euros (€): </span>
+                    <span id="saldoEuro" class="text-xl font-bold text-gray-800">••••••</span>
+                </div>
+                <div>
+                    <span class="font-medium text-gray-500">Dólares ($): </span>
+                    <span id="saldoDolar" class="text-xl font-bold text-gray-800">••••••</span>
+                </div>
+                <p id="errorConversion" class="text-sm text-red-500 mt-2"></p>
+            </div>
 
-  <!-- Tarjeta: Opciones -->
-  <div class="bg-white shadow rounded-2xl p-6 flex flex-col justify-between">
-    <h3 class="text-lg font-semibold text-gray-600 mb-4">Opciones</h3>
-    <div class="flex flex-col space-y-3">
-      <button class="px-4 py-2 bg-[#2BB15D] text-white rounded-xl hover:bg-green-600 transition flex items-center justify-center">
-        <i class="fas fa-qrcode mr-2"></i> Escanear QR
-      </button>
-      <button id="rechargeButton" class="bg-[#2BB15D] text-white px-4 py-2 rounded-xl hover:bg-[#23994e] transition flex items-center justify-center">
-        <i class="fas fa-wallet mr-2"></i> Recargar
-      </button>
-      <button id="transferButton" class="px-4 py-2 bg-[#4B34C3] text-white rounded-xl hover:bg-indigo-700 transition flex items-center justify-center">
-        <i class="fas fa-paper-plane mr-2"></i> Transferir
-      </button>
-    </div>
-  </div>
-</div>
+            <!-- Tarjeta: Opciones -->
+            <div class="bg-white shadow rounded-2xl p-6 flex flex-col justify-between">
+                <h3 class="text-lg font-semibold text-gray-600 mb-4">Opciones</h3>
+                <div class="flex flex-col space-y-3">
+                    <button class="px-4 py-2 bg-[#2BB15D] text-white rounded-xl hover:bg-green-600 transition flex items-center justify-center">
+                        <i class="fas fa-qrcode mr-2"></i> Escanear QR
+                    </button>
+                    <button id="rechargeButton" class="bg-[#2BB15D] text-white px-4 py-2 rounded-xl hover:bg-[#23994e] transition flex items-center justify-center">
+                        <i class="fas fa-wallet mr-2"></i> Recargar
+                    </button>
+                    <button id="transferButton" class="px-4 py-2 bg-[#4B34C3] text-white rounded-xl hover:bg-indigo-700 transition flex items-center justify-center">
+                        <i class="fas fa-paper-plane mr-2"></i> Transferir
+                    </button>
+                </div>
+            </div>
+        </div>
 
-
-        
         <!-- Modal para transferencias -->
         <div id="transferModal" class="modal">
             <div class="modal-content bg-white rounded-2xl shadow-xl max-w-md w-full mx-auto p-6">
@@ -311,7 +318,7 @@ Usuario usuario = (Usuario) session.getAttribute("usuario");
                                 </svg>
                             </div>
                             <input type="text" id="accountNumber" class="w-full pl-10 p-4 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2BB15D] focus:border-transparent bg-gray-50 transition" 
-                                   maxlength="14" minlength="14" pattern="[0-9]{14 achievers1}" placeholder="Ingrese 14 dígitos" required>
+                                   maxlength="14" minlength="14" pattern="[0-9]{14}" placeholder="Ingrese 14 dígitos" required>
                         </div>
                     </div>
                     <div id="pin-alert" class="flex items-center p-4 text-sm bg-red-100 text-red-700 rounded-xl mt-2 hidden" role="alert">
@@ -413,7 +420,7 @@ Usuario usuario = (Usuario) session.getAttribute("usuario");
                                 <polyline points="22 4 12 14.01 9 11.01"></polyline>
                             </svg>
                         </div>
-                        <h2 class=" miłość1text-2xl font-bold text-gray-800 mb-2">¡Transferencia exitosa!</h2>
+                        <h2 class="text-2xl font-bold text-gray-800 mb-2">¡Transferencia exitosa!</h2>
                         <p class="text-gray-500 text-center mb-6">Tu dinero ha sido enviado correctamente</p>
                     </div>
                     <div class="bg-gray-50 p-5 rounded-xl mb-6 border border-gray-100">
@@ -426,7 +433,6 @@ Usuario usuario = (Usuario) session.getAttribute("usuario");
             </div>
         </div>
        
-
         <!-- Modal de recarga -->
         <div id="rechargeModal" class="modal fixed inset-0 bg-black/70 backdrop-blur-md flex items-center justify-center hidden z-50 transition-all duration-300">
             <div class="bg-white rounded-3xl p-8 w-full max-w-md shadow-2xl relative border border-gray-100 overflow-hidden">
@@ -519,296 +525,310 @@ Usuario usuario = (Usuario) session.getAttribute("usuario");
             </div>
         </div>
         
-     <!-- Dashboard -->
-<div class="grid grid-cols-1 lg:grid-cols-3 gap-6 p-6">
+        <!-- Dashboard -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 p-6">
+            <!-- Recargas por Mes -->
+            <div class="lg:col-span-2 bg-white rounded-2xl shadow-md p-5">
+                <div class="flex justify-between items-center mb-3">
+                    <h2 class="text-lg font-semibold text-gray-800">Cantidad de Recargas por Mes</h2>
+                    <button class="bg-blue-100 text-blue-700 text-sm px-3 py-1 rounded-md">Ver</button>
+                </div>
+                <canvas id="graficoRecargasMeses" class="w-full h-64"></canvas>
+            </div>
 
-  <!-- Recargas por Mes -->
-  <div class="lg:col-span-2 bg-white rounded-2xl shadow-md p-5">
-    <div class="flex justify-between items-center mb-3">
-      <h2 class="text-lg font-semibold text-gray-800">Cantidad de Recargas por Mes</h2>
-      <button class="bg-blue-100 text-blue-700 text-sm px-3 py-1 rounded-md">Ver</button>
-    </div>
-    <canvas id="graficoRecargasMeses" class="w-full h-64"></canvas>
-  </div>
+            <!-- Tipo de Recargas (pastel) -->
+            <div class="bg-white rounded-2xl shadow-md p-5">
+                <div class="flex justify-between items-center mb-3">
+                    <h2 class="text-lg font-semibold text-gray-800">Tipo de Recargas</h2>
+                    <span class="text-sm text-gray-500">Izipay vs Yape</span>
+                </div>
+                <canvas id="graficoTipoRecargas" class="w-full h-64"></canvas>
+            </div>
 
-  <!-- Tipo de Recargas (pastel) -->
-  <div class="bg-white rounded-2xl shadow-md p-5">
-    <div class="flex justify-between items-center mb-3">
-      <h2 class="text-lg font-semibold text-gray-800">Tipo de Recargas</h2>
-      <span class="text-sm text-gray-500">Izipay vs Yape</span>
-    </div>
-    <canvas id="graficoTipoRecargas" class="w-full h-64"></canvas>
-  </div>
+            <!-- Transferencias por Mes -->
+            <div class="lg:col-span-3 bg-white rounded-2xl shadow-md p-5">
+                < see1div class="flex justify-between items-center mb-3">
+                    <h2 class="text-lg font-semibold text-gray-800">Cantidad de Transferencias por Mes</h2>
+                    <button class="bg-orange-100 text-orange-700 text-sm px-3 py-1 rounded-md">Ver</button>
+                </div>
+                <canvas id="graficoTransferenciasMeses" class="w-full h-64"></canvas>
+            </div>
+            <div class="lg:col-span-3 grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Ingresos -->
+                <div class="bg-white rounded-2xl shadow-md p-6">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-xl font-semibold text-gray-800">Monto Total de Ingresos por transferencias por Mes</h2>
+                    </div>
+                    <canvas id="graficoIngresosMeses" class="w-full" style="height: 400px;"></canvas>
+                </div>
 
-  <!-- Transferencias por Mes -->
-  <div class="lg:col-span-3 bg-white rounded-2xl shadow-md p-5">
-    <div class="flex justify-between items-center mb-3">
-      <h2 class="text-lg font-semibold text-gray-800">Cantidad de Transferencias por Mes</h2>
-      <button class="bg-orange-100 text-orange-700 text-sm px-3 py-1 rounded-md">Ver</button>
-    </div>
-    <canvas id="graficoTransferenciasMeses" class="w-full h-64"></canvas>
-  </div>
-  <div class="lg:col-span-3 grid grid-cols-1 md:grid-cols-2 gap-6">
-  <!-- Ingresos -->
-  <div class="bg-white rounded-2xl shadow-md p-6">
-    <div class="flex justify-between items-center mb-4">
-      <h2 class="text-xl font-semibold text-gray-800">Monto Total de Ingresos por transferencias por Mes</h2>
-    </div>
-    <canvas id="graficoIngresosMeses" class="w-full" style="height: 400px;"></canvas>
-  </div>
-
-  <!-- Gastos -->
-  <div class="bg-white rounded-2xl shadow-md p-6">
-    <div class="flex justify-between items-center mb-4">
-      <h2 class="text-xl font-semibold text-gray-800">Monto Total de Gastos por transferencias por Mes</h2>
-    </div>
-    <canvas id="graficoGastosMeses" class="w-full" style="height: 400px;"></canvas>
-  </div>
-</div>
-
-  
-      
-      
-      
-      
- 
-
-</div>
-        
+                <!-- Gastos -->
+                <div class="bg-white rounded-2xl shadow-md p-6">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-xl font-semibold text-gray-800">Monto Total de Gastos por transferencias por Mes</h2>
+                    </div>
+                    <canvas id="graficoGastosMeses" class="w-full" style="height: 400px;"></canvas>
+                </div>
+            </div>
+        </div>
     </main>
 
     <!-- Scripts -->
-    <script src="<%= request.getContextPath() %>/js/datoscuenta.js"></script>
+    <script src="<%= request.getContextPath() %>/js/datoscuentas.js"></script>
     
     <script>
- // Recargas por Mes
-fetch('<%= request.getContextPath() %>/api/recargas/por-mes')
-  .then(res => res.json())
-  .then(data => {
-    const ctx = document.getElementById("graficoRecargasMeses").getContext('2d');
-    new Chart(ctx, {
-      type: 'bar',
-      data: {
-        labels: data.meses,
-        datasets: [{
-          label: 'Recargas',
-          backgroundColor: '#3b82f6',
-          data: data.cantidades
-        }]
-      },
-      options: {
-        responsive: true,
-        scales: {
-          y: { beginAtZero: true, ticks: { color: "#6b7280" } },
-          x: { ticks: { color: "#6b7280" } }
-        }
-      }
-    });
-  })
-  .catch(console.error);
+        // Recargas por Mes
+        fetch('<%= request.getContextPath() %>/api/recargas/por-mes')
+            .then(res => res.json())
+            .then(data => {
+                const ctx = document.getElementById("graficoRecargasMeses").getContext('2d');
+                new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: data.meses,
+                        datasets: [{
+                            label: 'Recargas',
+                            backgroundColor: '#3b82f6',
+                            data: data.cantidades
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        scales: {
+                            y: { beginAtZero: true, ticks: { color: "#6b7280" } },
+                            x: { ticks: { color: "#6b7280" } }
+                        }
+                    }
+                });
+            })
+            .catch(console.error);
 
-// Tipo de Recargas (pastel)
-fetch('<%= request.getContextPath() %>/api/recargas/por-tipo')
-  .then(res => res.json())
-  .then(data => {
-    if (!data.tipos || !data.cantidades || data.tipos.length === 0) {
-      console.warn('Datos insuficientes para gráfico tipo recargas');
-      return;
-    }
-    const ctx = document.getElementById("graficoTipoRecargas").getContext('2d');
-    new Chart(ctx, {
-      type: 'doughnut',
-      data: {
-        labels: data.tipos,
-        datasets: [{
-          label: 'Tipo de Recargas',
-          data: data.cantidades,
-          backgroundColor: ['#f97316', '#10b981'],
-          borderColor: '#fff',
-          borderWidth: 2
-        }]
-      },
-      options: {
-        responsive: true,
-        plugins: {
-          legend: { position: 'bottom', labels: { color: "#4b5563" } }
-        }
-      }
-    });
-  })
-  .catch(console.error);
+        // Tipo de Recargas (pastel)
+        fetch('<%= request.getContextPath() %>/api/recargas/por-tipo')
+            .then(res => res.json())
+            .then(data => {
+                if (!data.tipos || !data.cantidades || data.tipos.length === 0) {
+                    console.warn('Datos insuficientes para gráfico tipo recargas');
+                    return;
+                }
+                const ctx = document.getElementById("graficoTipoRecargas").getContext('2d');
+                new Chart(ctx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: data.tipos,
+                        datasets: [{
+                            label: 'Tipo de Recargas',
+                            data: data.cantidades,
+                            backgroundColor: ['#f97316', '#10b981'],
+                            borderColor: '#fff',
+                            borderWidth: 2
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: { position: 'bottom', labels: { color: "#4b5563" } }
+                        }
+                    }
+                });
+            })
+            .catch(console.error);
 
-fetch('<%= request.getContextPath() %>/api/transferencias/por-mes')
-  .then(res => {
-    if (!res.ok) {
-      throw new Error('Error en la respuesta del servidor: ' + res.status);
-    }
-    return res.json();
-  })
-  .then(data => {
-    if (!data.meses || !data.cantidades || data.meses.length === 0 || data.cantidades.length === 0) {
-      console.warn('Datos insuficientes para gráfico transferencias por mes');
-      return;
-    }
+        fetch('<%= request.getContextPath() %>/api/transferencias/por-mes')
+            .then(res => {
+                if (!res.ok) {
+                    throw new Error('Error en la respuesta del servidor: ' + res.status);
+                }
+                return res.json();
+            })
+            .then(data => {
+                if (!data.meses || !data.cantidades || data.meses.length === 0 || data.cantidades.length === 0) {
+                    console.warn('Datos insuficientes para gráfico transferencias por mes');
+                    return;
+                }
 
-    const ctx = document.getElementById("graficoTransferenciasMeses").getContext('2d');
+                const ctx = document.getElementById("graficoTransferenciasMeses").getContext('2d');
 
-    new Chart(ctx, {
-      type: 'bar',
-      data: {
-        labels: data.meses,
-        datasets: [{
-          label: 'Transferencias',
-          backgroundColor: '#f59e0b',
-          data: data.cantidades
-        }]
-      },
-      options: {
-        responsive: true,
-        scales: {
-          y: {
-            beginAtZero: true,
-            ticks: {
-              color: "#6b7280",
-              stepSize: 1
+                new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: data.meses,
+                        datasets: [{
+                            label: 'Transferencias',
+                            backgroundColor: '#f59e0b',
+                            data: data.cantidades
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    color: "#6b7280",
+                                    stepSize: 1
+                                }
+                            },
+                            x: {
+                                ticks: { color: "#6b7280" }
+                            }
+                        }
+                    }
+                });
+            })
+            .catch(error => {
+                console.error('Error al cargar datos para gráfico transferencias por mes:', error);
+            });  
+
+        // Ingresos por Mes
+        fetch('<%= request.getContextPath() %>/api/transferencias/ingresos')
+            .then(res => res.json())
+            .then(data => {
+                const ingresosArray = [];
+                for (let i = 1; i <= 12; i++) {
+                    ingresosArray.push(data['mes' + i] ?? 0);
+                }
+
+                const ctxIngresos = document.getElementById("graficoIngresosMeses").getContext("2d");
+
+                new Chart(ctxIngresos, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'],
+                        datasets: [{
+                            label: 'Ingresos (S/.)',
+                            data: ingresosArray,
+                            backgroundColor: 'rgba(34, 197, 94, 0.6)',
+                            borderColor: 'rgba(34, 197, 94, 1)',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    callback: value => 'S/ ' + value
+                                }
+                            }
+                        }
+                    }
+                });
+            });
+
+        // Gastos por Mes
+        fetch('<%= request.getContextPath() %>/api/transferencias/gastos')
+            .then(res => res.json())
+            .then(data => {
+                const gastosArray = [];
+                for (let i = 1; i <= 12; i++) {
+                    gastosArray.push(data['mes' + i] ?? 0);
+                }
+
+                const ctxGastos = document.getElementById("graficoGastosMeses").getContext("2d");
+
+                new Chart(ctxGastos, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'],
+                        datasets: [{
+                            label: 'Gastos (S/.)',
+                            data: gastosArray,
+                            backgroundColor: 'rgba(239, 68, 68, 0.6)',
+                            borderColor: 'rgba(239, 68, 68, 1)',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    callback: value => 'S/ ' + value
+                                }
+                            }
+                        }
+                    }
+                });
+            });
+    </script>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <script>
+        // Obtener ID de usuario desde la sesión
+        const idUsuario = <%= idUsuario %>;
+        // Token de la API de ConsultasPeru
+        const apiToken = '502aa732c49c292289e80a80ca067c1a137af549a5f3a4d3831f01c8547d9f62';
+        // Fecha actual para la consulta de tipo de cambio
+        const today = new Date().toISOString().split('T')[0];
+
+        // Obtener saldo del usuario desde el backend
+        $.ajax({
+            url: '<%= request.getContextPath() %>/api/usuarios/' + idUsuario + '/saldo',
+            method: 'GET',
+            dataType: 'json',
+            success: function(data) {
+                const monto = data.saldo || 0;
+                const monedaBase = data.moneda || 'PEN';
+                // Inicialmente ocultar el saldo
+                $('#saldo').text('••••••');
+                convertirMoneda(monto, monedaBase, 'USD', '#saldoDolar');
+                convertirMoneda(monto, monedaBase, 'EUR', '#saldoEuro');
+            },
+            error: function(jqXHR, textStatus, errorThrown) {
+                console.error('Error al obtener saldo:', textStatus, errorThrown);
+                $('#errorConversion').text('No se pudo obtener el saldo del usuario. Intente de nuevo.');
+                $('#saldo').text('••••••');
+                $('#saldoEuro').text('••••••');
+                $('#saldoDolar').text('••••••');
             }
-          },
-          x: {
-            ticks: { color: "#6b7280" }
-          }
-        }
-      }
-    });
-  })
-  .catch(error => {
-    console.error('Error al cargar datos para gráfico transferencias por mes:', error);
-  });  
-  
-  // Ingresos por Mes
-fetch('<%= request.getContextPath() %>/api/transferencias/ingresos')
-  .then(res => res.json())
-  .then(data => {
-    const ingresosArray = [];
-    for (let i = 1; i <= 12; i++) {
-      ingresosArray.push(data['mes' + i] ?? 0);
-    }
+        });
 
-    const ctxIngresos = document.getElementById("graficoIngresosMeses").getContext("2d");
-
-    new Chart(ctxIngresos, {
-      type: 'bar',
-      data: {
-        labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'],
-        datasets: [{
-          label: 'Ingresos (S/.)',
-          data: ingresosArray,
-          backgroundColor: 'rgba(34, 197, 94, 0.6)',
-          borderColor: 'rgba(34, 197, 94, 1)',
-          borderWidth: 1
-        }]
-      },
-      options: {
-        responsive: true,
-        scales: {
-          y: {
-            beginAtZero: true,
-            ticks: {
-              callback: value => 'S/ ' + value
+        // Función para convertir moneda usando la API de ConsultasPeru
+        function convertirMoneda(monto, monedaBase, monedaDestino, selectorResultado) {
+            if (monto <= 0) {
+                $(selectorResultado).text('0.00');
+                $('#errorConversion').text('El saldo es cero o no válido.');
+                return;
             }
-          }
+
+            $.ajax({
+                url: 'https://api.consultasperu.com/api/v1/query/exchange-rate',
+                method: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    token: apiToken,
+                    start_date: today,
+                    end_date: today,
+                    currency: monedaDestino
+                }),
+                dataType: 'json',
+                success: function(response) {
+                    if (response.success && response.data) {
+                        // Usar el tipo de cambio de venta (sale) para convertir de PEN a moneda extranjera
+                        const tasa = parseFloat(response.data.sale);
+                        const montoConvertido = (monto / tasa).toFixed(2); // Dividir porque 1 PEN < 1 USD/EUR
+                        const formato = monedaDestino === 'EUR'
+                            ? { style: 'currency', currency: 'EUR', minimumFractionDigits: 2 }
+                            : { style: 'currency', currency: 'USD', minimumFractionDigits: 2 };
+                        $(selectorResultado).text(
+                            Number(montoConvertido).toLocaleString(monedaDestino === 'EUR' ? 'es-ES' : 'en-US', formato)
+                        );
+                    } else {
+                        $('#errorConversion').text(`No se pudo obtener la conversión a ${monedaDestino}.`);
+                        $(selectorResultado).text('••••••');
+                    }
+                },
+                error: function(jqXHR, textStatus, errorThrown) {
+                    console.error(`Error al convertir a ${monedaDestino}:`, textStatus, errorThrown);
+                    $('#errorConversion').text('Error al conectar con la API de conversión. Verifique su conexión.');
+                    $(selectorResultado).text('••••••');
+                }
+            });
         }
-      }
-    });
-  });
-
-  // Gastos por Mes
-fetch('<%= request.getContextPath() %>/api/transferencias/gastos')
-  .then(res => res.json())
-  .then(data => {
-    const gastosArray = [];
-    for (let i = 1; i <= 12; i++) {
-      gastosArray.push(data['mes' + i] ?? 0);
-    }
-
-    const ctxGastos = document.getElementById("graficoGastosMeses").getContext("2d");
-
-    new Chart(ctxGastos, {
-      type: 'bar',
-      data: {
-        labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'],
-        datasets: [{
-          label: 'Gastos (S/.)',
-          data: gastosArray,
-          backgroundColor: 'rgba(239, 68, 68, 0.6)',
-          borderColor: 'rgba(239, 68, 68, 1)',
-          borderWidth: 1
-        }]
-      },
-      options: {
-        responsive: true,
-        scales: {
-          y: {
-            beginAtZero: true,
-            ticks: {
-              callback: value => 'S/ ' + value
-            }
-          }
-        }
-      }
-    });
-  });
-</script>
-
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-
-<script>
-function convertirMoneda(monto, monedaBase, monedaDestino, selectorResultado) {
-  if (monto <= 0) {
-    $(selectorResultado).text('0.00');
-    $('#errorConversion').text('El saldo es cero o no válido.');
-    return;
-  }
-
-  const token = '502aa732c49c292289e80a80ca067c1a137af549a5f3a4d3831f01c8547d9f62'; // Reemplaza por tu token real
-  const fechaActual = new Date().toISOString().split('T')[0]; // yyyy-mm-dd
-
-  $.ajax({
-    url: 'https://api.consultasperu.com/api/v1/query/exchange-rate',
-    method: 'POST',
-    contentType: 'application/json',
-    data: JSON.stringify({
-      token: token,
-      start_date: fechaActual,
-      end_date: fechaActual,
-      currency: monedaDestino
-    }),
-    success: function(response) {
-      if (response.success && response.data && response.data.sale) {
-        const tasa = parseFloat(response.data.sale);
-        const montoConvertido = (monto / tasa).toFixed(2); // PEN → USD/EUR
-        const formato = {
-          style: 'currency',
-          currency: monedaDestino,
-          minimumFractionDigits: 2
-        };
-        $(selectorResultado).text(
-          Number(montoConvertido).toLocaleString(
-            monedaDestino === 'EUR' ? 'es-ES' : 'en-US',
-            formato
-          )
-        );
-      } else {
-        $('#errorConversion').text(`No se pudo obtener la conversión a ${monedaDestino}.`);
-        $(selectorResultado).text('••••••');
-      }
-    },
-    error: function(jqXHR, textStatus, errorThrown) {
-      console.error(`Error al convertir a ${monedaDestino}:`, textStatus, errorThrown);
-      $('#errorConversion').text('Error al conectar con la API de conversión. Verifique su conexión.');
-      $(selectorResultado).text('••••••');
-    }
-  });
-}
-</script>
+    </script>
 </body>
 </html>

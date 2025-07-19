@@ -110,7 +110,7 @@ public Map<String, Integer> obtenerRecargasPorTipo() throws SQLException {
 
     String sql = "SELECT mp.metodo, COUNT(r.id_recarga) AS cantidad " +
                  "FROM Recarga r " +
-                 "JOIN metodo_pago mp ON r.id_metodo = mp.id_metodo " +
+                 "JOIN Metodo_Pago mp ON r.id_metodo = mp.id_metodo " +
                  "GROUP BY mp.metodo " +
                  "ORDER BY mp.metodo";
 

@@ -100,7 +100,7 @@ function showEmailForm() {
 
       try {
         // Verificar si el correo ya existe
-        const checkResponse = await fetch(`http://localhost:8080/BilleteraDigitalWeb/api/usuarios/correo/${encodeURIComponent(emailInput.value)}`, {
+        const checkResponse = await fetch(`https://facipago.space/api/usuarios/correo/${encodeURIComponent(emailInput.value)}`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
@@ -213,7 +213,7 @@ function showDNIForm() {
 
       try {
         // Verificar si el DNI ya existe
-        const checkResponse = await fetch(`http://localhost:8080/BilleteraDigitalWeb/api/usuarios/dni/${dniInput.value}`, {
+        const checkResponse = await fetch(`https://facipago.space/api/usuarios/dni/${dniInput.value}`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
@@ -834,7 +834,7 @@ function showPinForm() {
       };
 
       try {
-        const response = await fetch('http://localhost:8080/BilleteraDigitalWeb/api/usuarios/register', {
+        const response = await fetch('https://facipago.space/api/usuarios/register', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -851,7 +851,7 @@ function showPinForm() {
         const result = await response.json();
         alert(result.message || 'Usuario registrado exitosamente');
         // Redirigir a login.jsp
-        window.location.href = '/BilleteraDigitalWeb/login.jsp';
+        window.location.href = '/login.jsp';
       } catch (error) {
         console.error('Error al registrar:', error);
         alert('Error: ' + error.message);
